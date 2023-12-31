@@ -1,4 +1,18 @@
 <script setup lang="ts">
+interface RequestData {
+  imageBase64: string;
+  languageIndex: string;
+}
+function postOcr(data: RequestData) {
+  return fetch('https://app.easyscreenocr.com/api/ocr/GetBaiduOcrTextNew', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+}
+
 onMounted(() => {
   const preview = document.querySelector("#replace-with-preview");
   document.addEventListener("paste", (event) => {
@@ -15,7 +29,16 @@ onMounted(() => {
           const reader = new FileReader();
           reader.onload = (event) => {
             const img = new Image();
-            img.src = event.target?.result as string;
+            const imgBase64 = event.target?.result as string;
+            img.src = imgBase64;
+            postOcr({
+              imageBase64: imgBase64,
+              languageIndex: "CHN_ENG",
+            }).then(async (response) => {
+              let data = await response.json();
+              console.log(data);
+            })
+
             console.log("img", img);
             preview?.replaceWith(img);
           };
