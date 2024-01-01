@@ -4,7 +4,7 @@ interface RequestData {
   languageIndex: string;
 }
 function postOcr(data: RequestData) {
-  return fetch('https://app.easyscreenocr.com/api/ocr/GetBaiduOcrTextNew', {
+  return $fetch('https://app.easyscreenocr.com/api/ocr/GetBaiduOcrTextNew', {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -20,27 +20,23 @@ onMounted(() => {
     event.stopPropagation();
 
     const items = event.clipboardData?.items;
-    console.log(items?.length);
     if (items) {
       for (const item of items) {
         if (item.type.indexOf("image") !== -1) {
           const blob = item.getAsFile();
-          console.log("b", blob);
           const reader = new FileReader();
-          reader.onload = (event) => {
+          reader.onload = async (event) => {
             const img = new Image();
             const imgBase64 = event.target?.result as string;
+
             img.src = imgBase64;
-            postOcr({
+            preview?.replaceWith(img);
+
+            const resp = await postOcr({
               imageBase64: imgBase64,
               languageIndex: "CHN_ENG",
-            }).then(async (response) => {
-              let data = await response.json();
-              console.log(data);
-            })
-
-            console.log("img", img);
-            preview?.replaceWith(img);
+            });
+            console.log(resp);
           };
           reader.readAsDataURL(blob!);
         }
