@@ -15,7 +15,7 @@ function postOcr(data: RequestData) {
   });
 }
 
-let imgBase64;
+let imgBase64: string;
 onMounted(() => {
   const preview = document.querySelector("#replace-with-preview");
   document.addEventListener("paste", (event) => {
@@ -35,6 +35,7 @@ onMounted(() => {
 
             img.src = imgBase64;
             preview?.replaceWith(img);
+
             shouldShowOCRButton.value = true;
           };
           reader.readAsDataURL(blob!);
@@ -43,6 +44,15 @@ onMounted(() => {
     }
   });
 });
+
+async function OCRButtonOnClickHandler() {
+  try {
+    const resq = await postOcr({ imageBase64: imgBase64, languageIndex: '' });
+    console.log(resq);
+  } catch (error) {
+    console.log(error);
+  }
+}
 </script>
 
 <template>
@@ -53,9 +63,8 @@ onMounted(() => {
           Paste to begin
         </h1>
 
-
-        <UButton v-if="shouldShowOCRButton" icon="i-heroicons-document-text" size="sm" color="primary" variant="soft"
-          :trailing="false">
+        <UButton icon="i-heroicons-document-text" size="sm" color="primary" variant="soft" :trailing="false"
+          v-if="shouldShowOCRButton" @click="OCRButtonOnClickHandler">
           OCR this
         </UButton>
       </div>
