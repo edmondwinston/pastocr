@@ -53,6 +53,9 @@ onMounted(() => {
         <h1 id="replace-with-preview" class="text-lg font-bold text-white">
           Paste to begin
         </h1>
+
+        <UButton icon="i-heroicons-pencil-square" size="sm" color="primary" variant="soft" label="Button"
+          :trailing="false" />
       </div>
     </section>
   </main>
