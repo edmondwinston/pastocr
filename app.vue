@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const shouldShowOCRButton = ref(false);
+
 interface RequestData {
   imageBase64: string;
   languageIndex: string;
@@ -13,6 +15,7 @@ function postOcr(data: RequestData) {
   });
 }
 
+let imgBase64;
 onMounted(() => {
   const preview = document.querySelector("#replace-with-preview");
   document.addEventListener("paste", (event) => {
@@ -22,21 +25,17 @@ onMounted(() => {
     const items = event.clipboardData?.items;
     if (items) {
       for (const item of items) {
+        console.log(item.type);
         if (item.type.indexOf("image") !== -1) {
           const blob = item.getAsFile();
           const reader = new FileReader();
           reader.onload = async (event) => {
             const img = new Image();
-            const imgBase64 = event.target?.result as string;
+            imgBase64 = event.target?.result as string;
 
             img.src = imgBase64;
             preview?.replaceWith(img);
-
-            const resp = await postOcr({
-              imageBase64: imgBase64,
-              languageIndex: "CHN_ENG",
-            });
-            console.log(resp);
+            shouldShowOCRButton.value = true;
           };
           reader.readAsDataURL(blob!);
         }
@@ -54,8 +53,11 @@ onMounted(() => {
           Paste to begin
         </h1>
 
-        <UButton icon="i-heroicons-pencil-square" size="sm" color="primary" variant="soft" label="Button"
-          :trailing="false" />
+
+        <UButton v-if="shouldShowOCRButton" icon="i-heroicons-document-text" size="sm" color="primary" variant="soft"
+          :trailing="false">
+          OCR this
+        </UButton>
       </div>
     </section>
   </main>
